@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controle Financeiro</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card h3 {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .card p {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .saldo-total {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .saldo-total h3 {
+            color: rgba(255,255,255,0.8);
+        }
+
+        .entradas p {
+            color: #4CAF50;
+        }
+
+        .despesas p {
+            color: #f44336;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #4CAF50;
+            transition: width 0.3s;
+        }
+
+        .form-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .form-section h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #666;
+            font-weight: 500;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: transform 0.2s;
+            font-weight: 600;
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+        }
+
+        .btn-danger {
+            background: #f44336;
+            margin-left: 10px;
+        }
+
+        .transactions-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .transactions-section h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .category-filter {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .category-btn {
+            background: #f5f5f5;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9em;
+        }
+
+        .category-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .transaction-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background 0.3s;
+        }
+
+        .transaction-item:hover {
+            background: #f8f9fa;
+        }
+
+        .transaction-info {
+            flex: 1;
+        }
+
+        .transaction-description {
+            font-weight: 500;
+            color: #333;
+        }
+
+        .transaction-category {
+            font-size: 0.8em;
+            color: #666;
+            background: #f0f0f0;
+            padding: 3px 8px;
+            border-radius: 10px;
+            display: inline-block;
+            margin-top: 5px;
+        }
+
+        .transaction-amount {
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        .transaction-entrada {
+            color: #4CAF50;
+        }
+
+        .transaction-despesa {
+            color: #f44336;
+        }
+
+        .challenge-section {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            color: white;
+        }
+
+        .challenge-section h2 {
+            color: white;
+            margin-bottom: 15px;
+        }
+
+        .challenge-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .challenge-stat {
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .challenge-stat h4 {
+            font-size: 0.9em;
+            margin-bottom: 8px;
+        }
+
+        .challenge-stat p {
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            .card p {
+                font-size: 1.5em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>💰 Controle Financeiro</h1>
+
+        <!-- Dashboard -->
+        <div class="dashboard">
+            <div class="card saldo-total">
+                <h3>Saldo Total</h3>
+                <p id="saldoTotal">R$ 0,00</p>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                </div>
+            </div>
+            <div class="card entradas">
+                <h3>Total de Entradas</h3>
+                <p id="totalEntradas">R$ 0,00</p>
+            </div>
+            <div class="card despesas">
+                <h3>Total de Despesas</h3>
+                <p id="totalDespesas">R$ 0,00</p>
+            </div>
+        </div>
+
+        <!-- Formulário -->
+        <div class="form-section">
+            <h2>➕ Nova Transação</h2>
+            <form id="transactionForm">
+                <div class="form-group">
+                    <label for="description">Descrição</label>
+                    <input type="text" id="description" required placeholder="Ex: Salário, Conta de luz...">
+                </div>
+                <div class="form-group">
+                    <label for="amount">Valor (R$)</label>
+                    <input type="number" id="amount" required min="0.01" step="0.01" placeholder="0,00">
+                </div>
+                <div class="form-group">
+                    <label for="type">Tipo</label>
+                    <select id="type">
+                        <option value="entrada">Entrada</option>
+                        <option value="despesa">Despesa</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="category">Categoria</label>
+                    <select id="category">
+                        <option value="Alimentação">🍔 Alimentação</option>
+                        <option value="Transporte">🚗 Transporte</option>
+                        <option value="Moradia">🏠 Moradia</option>
+                        <option value="Lazer">🎮 Lazer</option>
+                        <option value="Saúde">🏥 Saúde</option>
+                        <option value="Educação">📚 Educação</option>
+                        <option value="Salário">💼 Salário</option>
+                        <option value="Investimentos">📈 Investimentos</option>
+                        <option value="Outros">📦 Outros</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn">Adicionar Transação</button>
+            </form>
+        </div>
+
+        <!-- Transações -->
+        <div class="transactions-section">
+            <h2>📊 Transações</h2>
+            <div class="category-filter">
+                <button class="category-btn active" data-category="todas">Todas</button>
+                <button class="category-btn" data-category="entrada">Entradas</button>
+                <button class="category-btn" data-category="despesa">Despesas</button>
+                <button class="category-btn" data-category="Alimentação">Alimentação</button>
+                <button class="category-btn" data-category="Transporte">Transporte</button>
+                <button class="category-btn" data-category="Moradia">Moradia</button>
+                <button class="category-btn" data-category="Lazer">Lazer</button>
+                <button class="category-btn" data-category="Saúde">Saúde</button>
+                <button class="category-btn" data-category="Educação">Educação</button>
+            </div>
+            <div id="transactionsList"></div>
+        </div>
+
+        <!-- Desafio -->
+        <div class="challenge-section">
+            <h2>🎯 Desafio: Juntar R$ 2.000,00</h2>
+            <p>Complete 80 depósitos para alcançar seu objetivo!</p>
+            <div class="challenge-stats">
+                <div class="challenge-stat">
+                    <h4>Progresso</h4>
+                    <p id="challengeProgress">0/80</p>
+                </div>
+                <div class="challenge-stat">
+                    <h4>Total Acumulado</h4>
+                    <p id="challengeTotal">R$ 0,00</p>
+                </div>
+                <div class="challenge-stat">
+                    <h4>Faltam</h4>
+                    <p id="challengeRemaining">R$ 2.000,00</p>
+                </div>
+            </div>
+            <button class="btn" id="addChallengeDeposit" style="margin-top: 15px;">
+                Registrar Depósito do Desafio
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Arrays e objetos para armazenar dados
+        let transactions = [];
+        let currentFilter = 'todas';
+        
+        // Desafio de economia
+        const challenge = {
+            target: 2000,
+            deposits: [
+                { amount: 10, count: 20 },
+                { amount: 20, count: 20 },
+                { amount: 30, count: 20 },
+                { amount: 40, count: 20 }
+            ],
+            completedDeposits: 0,
+            totalSaved: 0,
+            currentLevel: 0,
+            currentCount: 0
+        };
+
+        // Função para formatar valores em Real
+        function formatCurrency(value) {
+            return new Intl.NumberFormat('pt-BR', {
+                style: 'currency',
+                currency: 'BRL'
+            }).format(value);
+        }
+
+        // Função para adicionar transação
+        function addTransaction(description, amount, type, category) {
+            const transaction = {
+                id: Date.now(),
+                description,
+                amount: parseFloat(amount),
+                type,
+                category,
+                date: new Date().toLocaleDateString('pt-BR')
+            };
+            
+            transactions.push(transaction);
+            updateDashboard();
+            renderTransactions();
+            saveToLocalStorage();
+        }
+
+        // Função para atualizar o dashboard
+        function updateDashboard() {
+            const totalEntradas = transactions
+                .filter(t => t.type === 'entrada')
+                .reduce((sum, t) => sum + t.amount, 0);
+            
+            const totalDespesas = transactions
+                .filter(t => t.type === 'despesa')
+                .reduce((sum, t) => sum + t.amount, 0);
+            
+            const saldoTotal = totalEntradas - totalDespesas;
+            
+            document.getElementById('saldoTotal').textContent = formatCurrency(saldoTotal);
+            document.getElementById('totalEntradas').textContent = formatCurrency(totalEntradas);
+            document.getElementById('totalDespesas').textContent = formatCurrency(totalDespesas);
+            
+            // Atualizar barra de progresso
+            const progressPercent = totalEntradas > 0 
+                ? Math.min((totalEntradas / (totalEntradas + totalDespesas)) * 100, 100)
+                : 0;
+            document.getElementById('progressFill').style.width = progressPercent + '%';
+        }
+
+        // Função para renderizar transações
+        function renderTransactions() {
+            const transactionsList = document.getElementById('transactionsList');
+            transactionsList.innerHTML = '';
+            
+            let filteredTransactions = transactions;
+            
+            if (currentFilter === 'entrada') {
+                filteredTransactions = transactions.filter(t => t.type === 'entrada');
+            } else if (currentFilter === 'despesa') {
+                filteredTransactions = transactions.filter(t => t.type === 'despesa');
+            } else if (currentFilter !== 'todas') {
+                filteredTransactions = transactions.filter(t => t.category === currentFilter);
+            }
+            
+            if (filteredTransactions.length === 0) {
+                transactionsList.innerHTML = '<p style="text-align: center; color: #999; padding: 20px;">Nenhuma transação encontrada</p>';
+                return;
+            }
+            
+            filteredTransactions.forEach(transaction => {
+                const transactionElement = document.createElement('div');
+                transactionElement.className = 'transaction-item';
+                
+                const amountClass = transaction.type === 'entrada' 
+                    ? 'transaction-entrada' 
+                    : 'transaction-despesa';
+                
+                const amountPrefix = transaction.type === 'entrada' ? '+' : '-';
+                
+                transactionElement.innerHTML = `
+                    <div class="transaction-info">
+                        <div class="transaction-description">${transaction.description}</div>
+                        <span class="transaction-category">${transaction.category} • ${transaction.date}</span>
+                    </div>
+                    <div class="transaction-amount ${amountClass}">
+                        ${amountPrefix} ${formatCurrency(transaction.amount)}
+                    </div>
+                    <button class="btn-danger" onclick="deleteTransaction(${transaction.id})" 
+                            style="background: none; border: none; cursor: pointer; font-size: 1.2em;">
+                        🗑️
+                    </button>
+                `;
+                
+                transactionsList.appendChild(transactionElement);
+            });
+        }
+
+        // Função para deletar transação
+        function deleteTransaction(id) {
+            transactions = transactions.filter(t => t.id !== id);
+            updateDashboard();
+            renderTransactions();
+            saveToLocalStorage();
+        }
+
+        // Função para adicionar depósito do desafio
+        function addChallengeDeposit() {
+            if (challenge.completedDeposits >= 80) {
+                alert('🎉 Parabéns! Você completou o desafio de R$ 2.000,00!');
+                return;
+            }
+            
+            // Determinar o valor do próximo depósito
+            const currentLevel = Math.floor(challenge.completedDeposits / 20);
+            const currentDeposit = challenge.deposits[currentLevel];
+            
+            if (!currentDeposit) return;
+            
+            const depositAmount = currentDeposit.amount;
+            
+            // Adicionar transação automaticamente
+            addTransaction(
+                `Depósito Desafio - Nível ${currentLevel + 1}`,
+                depositAmount,
+                'entrada',
+                'Investimentos'
+            );
+            
+            // Atualizar progresso do desafio
+            challenge.completedDeposits++;
+            challenge.totalSaved += depositAmount;
+            
+            // Atualizar interface do desafio
+            updateChallengeDisplay();
+            saveChallengeToLocalStorage();
+        }
+
+        // Função para atualizar display do desafio
+        function updateChallengeDisplay() {
+            document.getElementById('challengeProgress').textContent = 
+                `${challenge.completedDeposits}/80`;
+            
+            document.getElementById('challengeTotal').textContent = 
+                formatCurrency(challenge.totalSaved);
+            
+            const remaining = challenge.target - challenge.totalSaved;
+            document.getElementById('challengeRemaining').textContent = 
+                formatCurrency(Math.max(0, remaining));
+        }
+
+        // Função para salvar no localStorage
+        function saveToLocalStorage() {
+            localStorage.setItem('transactions', JSON.stringify(transactions));
+        }
+
+        // Função para salvar desafio no localStorage
+        function saveChallengeToLocalStorage() {
+            localStorage.setItem('challenge', JSON.stringify(challenge));
+        }
+
+        // Função para carregar dados do localStorage
+        function loadFromLocalStorage() {
+            const savedTransactions = localStorage.getItem('transactions');
+            if (savedTransactions) {
+                transactions = JSON.parse(savedTransactions);
+            }
+            
+            const savedChallenge = localStorage.getItem('challenge');
+            if (savedChallenge) {
+                const challengeData = JSON.parse(savedChallenge);
+                Object.assign(challenge, challengeData);
+            }
+            
+            updateDashboard();
+            renderTransactions();
+            updateChallengeDisplay();
+        }
+
+        // Event Listeners
+        document.getElementById('transactionForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const description = document.getElementById('description').value;
+            const amount = document.getElementById('amount').value;
+            const type = document.getElementById('type').value;
+            const category = document.getElementById('category').value;
+            
+            if (description && amount) {
+                addTransaction(description, amount, type, category);
+                
+                // Limpar formulário
+                document.getElementById('description').value = '';
+                document.getElementById('amount').value = '';
+            }
+        });
+
+         // Event listener para botões de categoria
+        document.querySelectorAll('.category-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                document.querySelectorAll('.category-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                
+                this.classList.add('active');
+                currentFilter = this.dataset.category;
+                renderTransactions();
+            });
+        });
+
+        // Event listener para depósito do desafio
+        document.getElementById('addChallengeDeposit').addEventListener('click', addChallengeDeposit);
+
+        // Inicializar aplicação
+        loadFromLocalStorage();
+
+        // Adicionar exemplos se não houver transações
+        if (transactions.length === 0) {
+            addTransaction('Salário Mensal', 3000, 'entrada', 'Salário');
+            addTransaction('Aluguel', 800, 'despesa', 'Moradia');
+            addTransaction('Supermercado', 450.50, 'despesa', 'Alimentação');
+            addTransaction('Uber', 120, 'despesa', 'Transporte');
+            addTransaction('Cinema', 60, 'despesa', 'Lazer');
+        }
+    </script>
+</body>
+</html>
